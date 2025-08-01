@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,7 @@ fun LoginScreen(viewModel: SharedViewModel, onLoginSuccess: () -> Unit) {
 
             OutlinedTextField(
                 value = viewModel.username.value,
-                onValueChange = { viewModel.username.value = it },
+                onValueChange = { viewModel.onUsernameChanged(it) },
                 label = { Text("Username") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -47,7 +48,7 @@ fun LoginScreen(viewModel: SharedViewModel, onLoginSuccess: () -> Unit) {
 
             OutlinedTextField(
                 value = viewModel.password.value,
-                onValueChange = { viewModel.password.value = it },
+                onValueChange = { viewModel.onPasswordChanged(it) },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier

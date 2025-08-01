@@ -12,7 +12,9 @@ import com.talent.sweetp.viewmodel.SharedViewModel
 
 @Composable
 fun ScreenFour(viewModel: SharedViewModel) {
-    val question = viewModel.triviaQuestions.value.getOrNull(viewModel.currentQuestionIndex.value)
+    // Pull state from ViewModel
+    val question = viewModel.triviaQuestions.value
+        .getOrNull(viewModel.currentQuestionIndex.value)
     val selectedAnswer = viewModel.selectedAnswer.value
     val isAnswerCorrect = viewModel.isAnswerCorrect.value
 
@@ -23,44 +25,56 @@ fun ScreenFour(viewModel: SharedViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        question?.let {
+        question?.let { q ->
+            // Question text
             Text(
-                text = it.question,
+                text = q.question,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            val shuffledAnswers = remember(it) { it.incorrect_answers.plus(it.correct_answer).shuffled() }
+            // Shuffle answers once per question
+            val shuffledAnswers = remember(q) {
+                (q.incorrect_answers + q.correct_answer).shuffled()
+            }
 
+            // Answer buttons
             shuffledAnswers.forEach { answer ->
-                val isCorrectAnswer = answer == it.correct_answer
                 Button(
-                    onClick = {
-                        viewModel.selectedAnswer.value = answer
-                        viewModel.checkAnswer(answer)
-                    },
+                    onClick = { viewModel.checkAnswer(answer) },
                     enabled = selectedAnswer == null || isAnswerCorrect == false,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
                 ) {
                     Text(text = answer)
                 }
             }
 
-            isAnswerCorrect?.let { correct ->
+            // Feedback & Next button
+            if (selectedAnswer != null) {
+                // Feedback text
                 Text(
-                    text = if (correct) "Correct! You can proceed to the next question." else "Incorrect! Please try again.",
+                    text = if (isAnswerCorrect == true)
+                        "Correct! Proceed to the next question."
+                    else
+                        "Incorrect! Please try again.",
                     fontSize = 18.sp,
-                    color = if (correct) Color.Green else Color.Red,
+                    color = if (isAnswerCorrect == true) Color.Green else Color.Red,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
-            }
 
-            Button(
-                onClick = { viewModel.nextQuestion() },
-                enabled = isAnswerCorrect == true,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            ) {
-                Text(text = "Next Question")
+                // Only show “Next” once they answer correctly
+                if (isAnswerCorrect == true) {
+                    Button(
+                        onClick = { viewModel.nextQuestion() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(text = "Next Question")
+                    }
+                }
             }
         }
     }
